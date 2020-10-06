@@ -1,0 +1,124 @@
+
+# programa vacio
+programa uno:
+	constantes
+		a = 10;
+		b = 20;
+	tipos
+		tvector = vector [1..5] de entero;
+		
+	variables
+		suma,resta : entero;
+		resultado : entero;
+		
+		conjuncion : booleano;
+		resultadoLogico : booleano;
+		
+				
+    subprogramas 
+		procedimiento sumar (var a,b : entero): #Hacer prueba con parametros de varios tipos
+			variables suma: entero;
+		comienzo
+			suma = a + b;
+		fin;
+		
+    funcion sumar (a,b : entero): entero:
+			variables 
+			suma: entero;
+		comienzo
+			#suma = a + b; ojo aqui en las funciones,
+
+			devolver suma;
+		fin;
+		funcion producto (a,b : entero): entero:
+			variables 
+			producto: entero;
+		comienzo
+			#suma = a * b; ojo aqui en las funciones,
+
+			devolver suma;
+		fin;
+
+
+comienzo
+
+a=1;
+a=(rtyu + jiuyiu);
+a=a*c;
+
+a = cierto;
+
+a = cierto == cierto;
+
+a = no b;
+
+v[1] = 3;
+
+
+i = 3 + 7;
+v[i] = 10;
+igual = 3==4;
+
+c= suma(a,b);
+d= resta(10, v[2]);
+a = funcion1();
+
+
+
+si (a < b) entonces:
+	a = b;
+sino:
+	a = a + b;
+	b = a;
+fin si;
+si (a<b) entonces:
+	a =b;
+	si a<c entonces:
+		a =c;
+	sino:
+		c =a;
+	fin si;
+sino:
+	b=a;
+fin si;
+
+b=5;
+
+para a en 1 .. b:
+b=4+5;
+fin para;
+
+escribir("hola mundo");
+escribir(cinco);
+escribir(4);
+escribir (5+a);
+procedimiento1();
+escribeVector(vectorEnteros);
+
+
+	suma = a + b;
+	resultado = suma * 10 + 4;
+	
+	escribir(suma);
+	escribir(resultado);
+
+	conjuncion = cierto y falso;
+	resultadoLogico = conjuncion y (a < b);
+	
+	escribir(conjuncion);
+	escribir(resultadoLogico);
+	si a < b entonces:
+		escribir("b es mayor que a");
+	sino:
+		si (b < a) entonces:
+			escribir("a es mayor que b");
+		sino:
+			escribir("a y b son iguales");
+		fin si;
+	fin si;
+	para i en 0 .. 10:
+		escribir(i);
+
+	fin para;
+
+fin.

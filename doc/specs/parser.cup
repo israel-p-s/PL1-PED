@@ -1,0 +1,370 @@
+package compiler.syntax;
+
+// Declaración de importaciones 
+//(No modificar las proporcionadas. Se pueden agregar mas)
+
+import java_cup.runtime.Symbol;
+import java.util.*;
+
+import es.uned.lsi.compiler.lexical.*;
+import es.uned.lsi.compiler.code.*;
+import es.uned.lsi.compiler.intermediate.*;
+import es.uned.lsi.compiler.semantic.*;
+import es.uned.lsi.compiler.semantic.symbol.*;
+import es.uned.lsi.compiler.semantic.type.*;
+import es.uned.lsi.compiler.syntax.*;
+
+import compiler.CompilerContext;
+import compiler.lexical.*;
+import compiler.syntax.nonTerminal.*;
+import compiler.semantic.*;
+import compiler.semantic.symbol.*;
+import compiler.semantic.type.*;
+import compiler.intermediate.*;
+import compiler.code.*;
+
+// Declaración del código de usuario
+
+action code {:
+	
+	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
+	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
+	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
+	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+
+:}	
+
+parser code {:
+	SyntaxErrorManager syntaxErrorManager = CompilerContext.getSyntaxErrorManager();
+	
+	public void syntax_error(Symbol symbol)
+	{ 
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxError ("Error sintactico", token);	    
+	}
+		
+	public void unrecovered_syntax_error(java_cup.runtime.Symbol symbol)
+	{	
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxFatalError ("Error fatal", token);
+	}
+:}
+
+// Declaración de terminales (Ejemplo)
+
+terminal Token BOOLEANO;
+terminal Token CIERTO;
+terminal Token COMIENZO;
+terminal Token CONSTANTES;
+terminal Token DE;
+terminal Token EN;
+terminal Token DEVOLVER;
+terminal Token ENTERO;
+terminal Token ENTONCES;
+terminal Token ESCRIBIR;
+terminal Token FALSO;
+terminal Token FIN;
+terminal Token FUNCION;
+terminal Token NO;
+terminal Token PARA;
+terminal Token PROCEDIMIENTO;
+terminal Token PROGRAMA;
+terminal Token SI;
+terminal Token SINO;
+terminal Token SUBPROGRAMAS;
+terminal Token TIPOS;
+terminal Token VAR;
+terminal Token VARIABLES;
+terminal Token VECTOR;
+terminal Token Y;
+terminal Token PARENTESIS_IZQ;
+terminal Token PARENTESIS_DER;
+terminal Token CORCHETE_IZQ;
+terminal Token CORCHETE_DER;
+terminal Token COMA;
+terminal Token PUNTO_COMA;
+terminal Token DOS_PUNTOS;
+terminal Token RANGO;
+terminal Token PUNTO;
+terminal Token SUMA;
+terminal Token PRODUCTO;
+terminal Token MENOR_QUE;
+terminal Token IGUAL_QUE;
+terminal Token ASIGNACION;
+terminal Token INT;
+terminal Token STRING;
+terminal Token ID;
+
+
+// ...
+
+
+// Declaración de no terminales
+// no modificar los propuestos
+
+non terminal  			program;
+non terminal Axiom		axiom;
+non terminal  			declaraciones;
+non terminal			declaracionConstantes;
+non terminal			declaracionConstante;
+non terminal			valor;
+non terminal			declaracionTiposVariables;
+non terminal			declaracionTipos;
+non terminal			declaracionTipo;
+non terminal			constanteEntera;
+non terminal			tipoPrimitivoCompuesto;
+non terminal			tipoPrimitivo;
+non terminal			tipoCompuesto;
+non terminal			declaracionVariablesSubprogramas;
+non terminal			declaracionVariables;
+non terminal			declaracionVariable;
+non terminal			declaracionResto;
+non terminal			declaracionSubprogramas;
+non terminal			declaracionSubprograma;
+non terminal			declaracionFuncion;
+non terminal			parametrosFormales;
+non terminal			listaParametros;
+non terminal			declaracionParametro;
+non terminal			declaracionProcedimiento;
+non terminal			sentencias;
+non terminal			sentencia;
+non terminal			sentenciaAsignacion;
+non terminal			referencia;
+non terminal			expresion;
+non terminal			sentenciaSiEntoncesSi;
+non terminal			sentenciaPara;
+non terminal			sentenciaSalida;
+non terminal			parametro;
+non terminal			llamadaProcedimientos;
+non terminal			parametrosActuales;
+non terminal			sentenciaDevolver;
+non terminal			valorReferencia;
+non terminal			accesoVectores;
+// ...
+
+
+// Declaración de relaciones de precedencia
+precedence left     PARENTESIS_IZQ;
+precedence left     PARENTESIS_DER;
+precedence left     CORCHETE_IZQ;
+precedence left     CORCHETE_DER;
+precedence left     PRODUCTO;
+precedence left     SUMA;
+precedence left     Y;
+precedence left     MENOR_QUE;
+precedence left     IGUAL_QUE;
+precedence right    NO;
+
+// ...
+
+// Declaración de reglas de producción
+
+
+start with program;
+
+program ::= 
+  {: 
+        syntaxErrorManager.syntaxInfo ("Starting parsing..."); 
+   :}
+  axiom:ax
+  {: 
+  		// No modificar esta estructura, aunque se pueden añadir más acciones semánticas
+  		// Para la entrega de febrero pueden comentarse las dos sentencias siguientes:
+  		//List intermediateCode = ax.getIntermediateCode ();
+  		//finalCodeFactory.create (intermediateCode);
+  		// En caso de no comentarse las sentencias anteriores puede generar una excepcion
+  		// en las llamadas a cupTest en la entrega de Febrero. Esto es debido a que 
+  		// aún no se tendrá implementada la generación de código intermedio ni final.
+  		// Para la entrega de Junio deberán descomentarse y usarse.
+  		
+  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+   :};
+
+
+	axiom ::= 											PROGRAMA ID DOS_PUNTOS declaraciones COMIENZO sentencias FIN PUNTO;
+
+
+	declaraciones ::= 									CONSTANTES declaracionConstantes declaracionTiposVariables 
+ 				   										| declaracionTiposVariables;
+
+	
+	declaracionTiposVariables ::= 						TIPOS declaracionTipos declaracionVariablesSubprogramas
+ 	       												| declaracionVariablesSubprogramas;
+
+
+	declaracionVariablesSubprogramas ::= 				VARIABLES declaracionVariables declaracionResto
+ 									   					| declaracionResto;
+
+
+	declaracionResto ::= 								SUBPROGRAMAS declaracionSubprogramas
+					   									| ;
+
+
+	declaracionConstantes ::= 							declaracionConstante
+ 						    							| declaracionConstantes declaracionConstante;
+
+
+	declaracionConstante ::= 							ID ASIGNACION valor PUNTO_COMA;
+
+
+	valor ::= 											INT
+ 		    											| CIERTO
+ 		    											| FALSO;
+
+
+	declaracionTipos ::= 								declaracionTipo
+					   									| declaracionTipos declaracionTipo;
+
+
+	declaracionTipo ::= 								ID ASIGNACION VECTOR CORCHETE_IZQ constanteEntera RANGO constanteEntera CORCHETE_DER DE tipoPrimitivo PUNTO_COMA;
+
+
+	constanteEntera ::= 								INT
+					 									| ID;
+
+
+
+	tipoPrimitivoCompuesto ::= 							tipoPrimitivo
+ 														|  tipoCompuesto;
+
+
+	tipoPrimitivo ::= 									ENTERO
+														| BOOLEANO;
+
+
+	tipoCompuesto ::= 									ID;
+
+
+
+	declaracionVariables ::= 							declaracionVariable
+	     				   								| declaracionVariables declaracionVariable;
+
+
+	declaracionVariable ::= 							ID DOS_PUNTOS tipoPrimitivoCompuesto PUNTO_COMA
+						  								| ID COMA declaracionVariable;
+
+
+	declaracionSubprogramas ::= 						declaracionSubprograma
+														| declaracionSubprogramas declaracionSubprograma;
+
+
+	declaracionSubprograma ::= 							declaracionFuncion
+														| declaracionProcedimiento; 
+
+
+	declaracionFuncion ::= 								FUNCION ID PARENTESIS_IZQ parametrosFormales PARENTESIS_DER DOS_PUNTOS tipoPrimitivo DOS_PUNTOS declaraciones COMIENZO sentencias FIN PUNTO_COMA;
+			
+			
+	declaracionProcedimiento ::= 						PROCEDIMIENTO ID PARENTESIS_IZQ VAR parametrosFormales PARENTESIS_DER DOS_PUNTOS declaraciones COMIENZO sentencias FIN PUNTO_COMA;
+
+	
+	parametrosFormales ::= 								listaParametros
+														|;
+	
+	listaParametros ::= 								declaracionParametro
+			  											| listaParametros PUNTO_COMA declaracionParametro;
+	
+	declaracionParametro ::= 							ID DOS_PUNTOS valorReferencia tipoPrimitivoCompuesto
+			   											| ID COMA declaracionParametro;
+	
+	
+	valorReferencia ::= 								VAR
+														|;
+	
+	
+	sentencias ::= 										sentencia PUNTO_COMA sentencias
+			  											| ;
+	
+	sentencia ::= 										sentenciaAsignacion
+        												| sentenciaSiEntoncesSi
+        												| sentenciaPara
+        												| sentenciaSalida
+        												| llamadaProcedimientos
+        												| accesoVectores
+        												| sentenciaDevolver;
+	
+	sentenciaAsignacion ::= 							referencia ASIGNACION expresion;
+	
+	sentenciaSiEntoncesSi ::= 							SI expresion ENTONCES DOS_PUNTOS sentencias FIN SI
+														| SI expresion ENTONCES DOS_PUNTOS sentencias SINO DOS_PUNTOS sentencias FIN SI;
+
+
+	accesoVectores ::= 									ID CORCHETE_IZQ constanteEntera CORCHETE_DER
+														| ID CORCHETE_IZQ accesoVectores CORCHETE_DER;
+	
+	
+	sentenciaDevolver ::= 								DEVOLVER referencia;
+	
+	
+	sentenciaPara ::= 									PARA constanteEntera EN constanteEntera RANGO constanteEntera DOS_PUNTOS sentencias FIN PARA;
+
+
+	sentenciaSalida ::= 								ESCRIBIR PARENTESIS_IZQ parametro PARENTESIS_DER;
+
+	
+	parametro ::= 										expresion
+        												| STRING
+        												|;
+
+	
+    expresion::= 										expresion SUMA expresion
+														| expresion PRODUCTO expresion
+														| expresion IGUAL_QUE expresion
+														| expresion MENOR_QUE expresion
+														| expresion Y expresion
+														| NO expresion
+														| PARENTESIS_IZQ expresion PARENTESIS_DER
+														| CORCHETE_IZQ expresion CORCHETE_DER
+														| llamadaProcedimientos
+														| referencia
+														| INT
+														| CIERTO
+														| FALSO;	
+    
+    
+    referencia ::= 										ID
+    													| ID PARENTESIS_IZQ expresion PARENTESIS_DER
+    													| accesoVectores;
+    
+    llamadaProcedimientos ::= 							ID PARENTESIS_IZQ referencia PARENTESIS_DER	
+            											| ID PARENTESIS_IZQ parametrosActuales PARENTESIS_DER;
+
+    parametrosActuales ::= 								referencia COMA referencia         
+    													| referencia COMA parametrosActuales 
+    													| referencia COMA INT
+    													| INT COMA INT
+    													| INT COMA referencia
+    													| INT COMA parametrosActuales
+    													| ;
+    // ERRORES
+    axiom                     							::= ID error
+            											{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'programa'."); :}DOS_PUNTOS declaraciones COMIENZO sentencias FIN PUNTO
+            											| PROGRAMA error
+            											{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: ID incorrecto."); :}declaraciones COMIENZO sentencias FIN PUNTO
+            											| PROGRAMA ID declaraciones error
+            											{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'comienzo'."); :}COMIENZO sentencias FIN PUNTO
+            											| PROGRAMA ID declaraciones COMIENZO sentencias error
+            											{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'fin'."); :}FIN PUNTO
+            											| PROGRAMA ID declaraciones COMIENZO sentencias FIN error 
+            											{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba un punto ('.')."); :}PUNTO
+            											;
+     
+    declaraciones ::= 									declaracionConstantes error
+    													{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'constantes'."); :}declaracionTiposVariables
+    													;
+    													
+    													
+    declaracionTiposVariables ::= 						declaracionTipos error
+    													{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'tipos'."); :}declaracionVariablesSubprogramas
+    	 	       										;
+
+
+    declaracionVariablesSubprogramas ::= 				declaracionVariables error
+    													{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'variables'."); :}declaracionResto
+    													;
+
+
+    declaracionResto ::= 								declaracionSubprogramas error
+    													{: syntaxErrorManager.syntaxInfo ("ERROR SINTÁCTICO: Se esperaba la palabra reservada 'variables'."); :}
+    													;
+    													
