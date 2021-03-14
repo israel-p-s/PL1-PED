@@ -1,2 +1,2 @@
 # PL1-PED
-Creació del lèxic i la sintaxi d'una gramàtica.
+Creating the lexical and syntax of a language.
